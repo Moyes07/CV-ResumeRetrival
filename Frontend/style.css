@@ -1,0 +1,207 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Karla", sans-serif;
+    margin: 0;
+}
+main{
+    padding: 16px;
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    height: 65px;
+    background: linear-gradient(90deg, #672280 1.18%, #A626D3 100%);
+    color: white;
+    padding: 20px;
+}
+
+.header--image {
+    height: 250%;
+    margin-right: 6px;
+}
+
+.header--title {
+    font-size: 1.50rem;
+    margin-right: auto;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-style: italic;
+    color: #D5D4D8;
+}
+
+.header--project {
+    font-size: 1.25rem;
+    font-weight: 500;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-style:normal;
+    color: #D5D4D8;
+}
+.form {
+    display: grid;
+    grid-template: 40px 40px / 1fr 1fr;
+    gap: 17px;
+}
+
+.form--input {
+    font-family: "Karla", sans-serif;
+    border-radius: 5px;
+    border: 1px solid #D5D4D8;
+    text-indent: 5px;
+}  
+.inputFeild{
+    width: 100%;
+}
+  .text-box {
+    position: absolute;
+    border:rgba(231, 223, 223, 0.1);
+    background-color: rgba(231, 223, 223, 0.1);
+    cursor: grab;
+    padding: 8px;
+    resize: both; 
+    overflow: auto; 
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+  }
+  input {
+    margin-right: 10px;
+  }
+  
+  button {
+    margin-right: 10px;
+  }
+  
+  
+
+.form--button {
+    grid-column: 1 / -1;
+    font-family: "Karla", sans-serif;
+    border-radius: 5px;
+    background: linear-gradient(90.41deg, #711F8D 1.14%, #A818DA 100%);
+    color: white;
+    border: none;
+}
+.meme {
+    display: flex;
+    justify-content: center; 
+    align-items: center;     
+    height: 500px;       
+    padding-top: 100px; 
+    position: relative      
+}
+.meme--image {
+    max-width: 100%;
+    border-radius: 3px;
+}
+
+.meme--text {
+    position: absolute;
+    width: 80%;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 15px 0;
+    font-family: impact, sans-serif;
+    font-size: 2em;
+    text-transform: uppercase;
+    color: white;
+    letter-spacing: 1px;
+    text-shadow:
+        2px 2px 0 #000,
+        -2px -2px 0 #000,
+        2px -2px 0 #000,
+        -2px 2px 0 #000,
+        0 2px 0 #000,
+        2px 0 0 #000,
+        0 -2px 0 #000,
+        -2px 0 0 #000,
+        2px 2px 5px #000;
+}
+
+.bottom {
+    bottom: 0;
+}
+
+.top {
+    top: 0;
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 80vh;
+  }
+  
+  .container {
+    display: flex;
+    align-items: center;
+    margin: 10px 0;
+  }
+  
+  .dropdown {
+    margin-right: 10px;
+    padding: 5px;
+    font-size: 16px;
+    width:200px ;
+  }
+  
+  .textbox {
+    padding: 5px;
+    font-size: 16px;
+    width:400px;
+    border-style: solid;
+    border-radius: 5px;
+  }
+  .getcvbuttondiv {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 10px 0;
+  }
+  .getcvbutton{
+    border-radius: 15px;
+    color: #f3f0f0;
+    background-color: #A626D3;
+    width:20vh
+  }
+  /* Add this CSS to your stylesheet */
+.container {
+  margin-bottom: 15px;
+}
+
+.getcvbuttondiv {
+  margin-top: 15px;
+}
+
+.pdf-viewer {
+  margin-top: 10px;
+  position: relative;
+}
+
+.navigation-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.navigation-buttons button {
+  padding: 10px;
+}
+
+.pdfheading{
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+  align-items: center;
+  font-style: inherit;
+}
+
