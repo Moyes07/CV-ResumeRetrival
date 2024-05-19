@@ -24,7 +24,7 @@ export default function QueryGenerator() {
   const generateList = () => {
     return inputs
       .filter((input) => input.value.trim() !== "")
-      .map((input) => `${input.category}: ${input.value.trim()}`);
+      .map((input) => [`${input.category}: ${input.value.trim()}`]);
   };
 
   const handleSubmit = async (event) => {

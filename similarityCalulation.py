@@ -2,6 +2,8 @@ from flask import Flask, request, jsonify, send_file
 import psycopg2
 from flask_cors import CORS
 import tempfile
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])
@@ -44,24 +46,67 @@ def process_data(row):
 @app.route('/process_query', methods=['POST'])
 def process_query():
     data = request.get_json()
-    query_list = data['resultList']  # Directly access 'resultList' key
+    query_list = data['resultList']  # Extract the list of queries directly without the 'resultList' key
     rows = fetch_data_from_db()
-    
-    # Placeholder for your similarity calculation logic
-    # For now, assume you return the top 5 most similar candidate IDs
-    results = {row[0]: 0 for row in rows}  # Replace with actual similarity logic
-    sorted_results = sorted(results.items(), key=lambda x: x[1], reverse=True)
-    top_5_results = sorted_results[:5]
-    
-    # Return only the candidate IDs and their PDF links
+
+
     response_data = []
-    for candidate_id, _ in top_5_results:
+
+    for query in query_list:
+        skills = []
+        experience = []
+        education = []
+
+
+        # Iterate through each parameter in the query
+        for query in query_list:
+            for param in query:
+                category, value = param.split(':')
+                if category.strip().lower() == 'skills':
+                    skills.extend(value.split(','))
+                elif category.strip().lower() == 'experience':
+                    experience.extend(value.split(','))
+                elif category.strip().lower() == 'education':
+                    education.extend(value.split(','))
+
+        # Extract text data from database rows
+        candidate_texts = [(row[1], row[2], row[3]) for row in rows] 
+
+        # Vectorize the query skills, experience, and education
+        vectorizer = CountVectorizer().fit(skills + experience + education)
+        skills_vector = vectorizer.transform(skills)
+        experience_vector = vectorizer.transform(experience)
+        education_vector = vectorizer.transform(education)
+
+        # Calculate cosine similarity for each candidate
+        similarities = []
+        for candidate_education, candidate_experience, candidate_skills in candidate_texts:
+            candidate_education_similarity = cosine_similarity(education_vector, vectorizer.transform([candidate_education]))
+            candidate_experience_similarity = cosine_similarity(experience_vector, vectorizer.transform([candidate_experience]))
+            candidate_skills_similarity = cosine_similarity(skills_vector, vectorizer.transform([candidate_skills]))
+
+            total_similarity = (candidate_education_similarity.mean() + candidate_experience_similarity.mean() + candidate_skills_similarity.mean()) / 3
+            similarities.append(total_similarity)
+
+        # Get top 5 candidate indices with highest similarity
+        top_5_indices = sorted(range(len(similarities)), key=lambda i: similarities[i], reverse=True)[:5]
+
+        # Add the top 5 candidates to the response data
+        for idx in top_5_indices:
+            candidate = rows[idx]
+            candidate_id = candidate[0]  # Accessing candidate ID from the tuple
+            cv_link = f"http://127.0.0.1:5000/get_cv/{candidate_id}"
+
+    # Append the CV link along with other candidate information
         response_data.append({
             "id": candidate_id,
-            "pdf_link": f"http://127.0.0.1:5000/get_cv/{candidate_id}"
+            "pdf_link": cv_link,
+            "total_similarity": similarities[idx]
         })
-    
+
     return jsonify(response_data)
+
+
 
 # Route to retrieve and render PDF file
 @app.route('/get_cv/<int:candidate_id>', methods=['GET'])
