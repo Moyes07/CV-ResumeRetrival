@@ -70,7 +70,7 @@ def process_query():
                     education.extend(value.split(','))
 
         # Extract text data from database rows
-        candidate_texts = [(row[1], row[2], row[3]) for row in rows] 
+        candidate_texts = [(row[0],row[1], row[3], row[5]) for row in rows] 
 
         # Vectorize the query skills, experience, and education
         vectorizer = CountVectorizer().fit(skills + experience + education)
@@ -78,30 +78,32 @@ def process_query():
         experience_vector = vectorizer.transform(experience)
         education_vector = vectorizer.transform(education)
 
-        # Calculate cosine similarity for each candidate
         similarities = []
-        for candidate_education, candidate_experience, candidate_skills in candidate_texts:
+        for candidate in candidate_texts:
+            candidate_education = candidate[1]
+            candidate_experience = candidate[2]
+            candidate_skills = candidate[3]
+            candidate_id = rows[candidate_texts.index(candidate)][0]
+
             candidate_education_similarity = cosine_similarity(education_vector, vectorizer.transform([candidate_education]))
             candidate_experience_similarity = cosine_similarity(experience_vector, vectorizer.transform([candidate_experience]))
             candidate_skills_similarity = cosine_similarity(skills_vector, vectorizer.transform([candidate_skills]))
 
-            total_similarity = (candidate_education_similarity.mean() + candidate_experience_similarity.mean() + candidate_skills_similarity.mean()) / 3
-            similarities.append(total_similarity)
+            total_similarity = (candidate_education_similarity.mean() + candidate_experience_similarity.mean() + candidate_skills_similarity.mean())
+            similarities.append((candidate_id, total_similarity))
+            
+        top_5_candidates = sorted(similarities, key=lambda x: x[1], reverse=True)[:5]
 
-        # Get top 5 candidate indices with highest similarity
-        top_5_indices = sorted(range(len(similarities)), key=lambda i: similarities[i], reverse=True)[:5]
+        # Add the top 5 candidates to the response data if similarity is greater than 0
+        for candidate_id, similarity in top_5_candidates:
+            if similarity > 0:
+                cv_link = f"http://127.0.0.1:5000/get_cv/{candidate_id}"
 
-        # Add the top 5 candidates to the response data
-        for idx in top_5_indices:
-            candidate = rows[idx]
-            candidate_id = candidate[0]  # Accessing candidate ID from the tuple
-            cv_link = f"http://127.0.0.1:5000/get_cv/{candidate_id}"
-
-    # Append the CV link along with other candidate information
+                # Append the CV link along with other candidate information
         response_data.append({
             "id": candidate_id,
             "pdf_link": cv_link,
-            "total_similarity": similarities[idx]
+            "total_similarity": similarity
         })
 
     return jsonify(response_data)
