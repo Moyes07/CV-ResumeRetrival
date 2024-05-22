@@ -4,6 +4,8 @@ from flask_cors import CORS
 import tempfile
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+
 
 app = Flask(__name__)
 CORS(app, origins=["http://localhost:5173"])
@@ -78,33 +80,60 @@ def process_query():
         experience_vector = vectorizer.transform(experience)
         education_vector = vectorizer.transform(education)
 
+        print("Skills Vector:", skills_vector.toarray())
+        print("Experience Vector:", experience_vector.toarray())
+        print("Education Vector:", education_vector.toarray())
+
         similarities = []
         for candidate in candidate_texts:
             candidate_education = candidate[1]
             candidate_experience = candidate[2]
             candidate_skills = candidate[3]
             candidate_id = rows[candidate_texts.index(candidate)][0]
-
-            candidate_education_similarity = cosine_similarity(education_vector, vectorizer.transform([candidate_education]))
-            candidate_experience_similarity = cosine_similarity(experience_vector, vectorizer.transform([candidate_experience]))
-            candidate_skills_similarity = cosine_similarity(skills_vector, vectorizer.transform([candidate_skills]))
-
-            total_similarity = (candidate_education_similarity.mean() + candidate_experience_similarity.mean() + candidate_skills_similarity.mean())
-            similarities.append((candidate_id, total_similarity))
             
-        top_5_candidates = sorted(similarities, key=lambda x: x[1], reverse=True)[:5]
+            candidate_skills_vector = vectorizer.transform([candidate_skills])
+            candidate_experience_vector = vectorizer.transform([candidate_experience])
+            candidate_education_vector = vectorizer.transform([candidate_education])
 
-        # Add the top 5 candidates to the response data if similarity is greater than 0
-        for candidate_id, similarity in top_5_candidates:
-            if similarity > 0:
-                cv_link = f"http://127.0.0.1:5000/get_cv/{candidate_id}"
+
+            skills_similarity = cosine_similarity(skills_vector, candidate_skills_vector)[0][0]
+            experience_similarity = cosine_similarity(experience_vector, candidate_experience_vector)[0][0]
+            education_similarity = cosine_similarity(education_vector, candidate_education_vector)[0][0]
+    
+            # Combine the similarities. Here, you can use a weighted average or simple average.
+            overall_similarity = (skills_similarity + experience_similarity + education_similarity) / 3
+    
+            similarities.append((candidate_id, overall_similarity))
+
+            print(f"Candidate ID: {candidate_id}")
+            print("Candidate Skills Vector:", candidate_skills_vector.toarray())
+            print("Candidate Experience Vector:", candidate_experience_vector.toarray())
+            print("Candidate Education Vector:", candidate_education_vector.toarray())
+            print(f"Skills Similarity: {skills_similarity}")
+            print(f"Experience Similarity: {experience_similarity}")
+            print(f"Education Similarity: {education_similarity}")
+            print(f"Overall Similarity: {overall_similarity}")
+            print("--------------------------------------")
+            
+        sorted_similarities = sorted(similarities, key=lambda x: x[1], reverse=True)
+
+        print("Sorted Similarities (Candidate ID, Skills Similarity, Experience Similarity, Education Similarity, Overall Similarity):")
+        for sim in sorted_similarities:
+            print(sim)
+
+        # Add the top 3 candidates to the response data
+        for candidate in sorted_similarities[:3]:
+            candidate_id, overall_similarity = candidate
+    
+            # Create the CV link
+            cv_link = f"http://127.0.0.1:5000/get_cv/{candidate_id}"
 
                 # Append the CV link along with other candidate information
-        response_data.append({
-            "id": candidate_id,
-            "pdf_link": cv_link,
-            "total_similarity": similarity
-        })
+            response_data.append({
+                "id": candidate_id,
+                "pdf_link": cv_link,
+                "total_similarity": overall_similarity,
+            })
 
     return jsonify(response_data)
 

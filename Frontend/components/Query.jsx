@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 
-export default function QueryGenerator() {
+export default function QueryGenerator({ uploadDrawerOpen }) {
   const [inputs, setInputs] = useState([
     { category: "Experience", value: "" },
     { category: "Education", value: "" },
@@ -8,12 +8,14 @@ export default function QueryGenerator() {
   ]);
   const [pdfLinks, setPdfLinks] = useState([]); // State to store PDF links
   const [currentIndex, setCurrentIndex] = useState(0); // State to track the current PDF index
+  const [drawerOpen, setDrawerOpen] = useState(false); // State to manage drawer open/close
 
   const handleInputChange = (index, event) => {
     const newInputs = [...inputs];
     newInputs[index].value = event.target.value;
     setInputs(newInputs);
   };
+
 
   const handleSelectChange = (index, event) => {
     const newInputs = [...inputs];
@@ -33,27 +35,26 @@ export default function QueryGenerator() {
     console.log(resultList);
 
     try {
-      const response = await fetch('http://127.0.0.1:5000/process_query', {
-        method: 'POST',
+      const response = await fetch("http://127.0.0.1:5000/process_query", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ resultList }),
       });
 
       if (response.ok) {
         const responseData = await response.json();
-        console.log('Success:', responseData);
+        console.log("Success:", responseData);
         // Assuming responseData contains the URLs of the PDF files
-        setPdfLinks(responseData.map(data => data.pdf_link));
+        setPdfLinks(responseData.map((data) => data.pdf_link));
         setCurrentIndex(0); // Reset to first PDF
-        // Scroll down to the PDF viewer
-        document.getElementById("pdf-viewer").scrollIntoView({ behavior: "smooth" });
+        setDrawerOpen(true); // Open the drawer
       } else {
-        console.error('Error:', response.statusText);
+        console.error("Error:", response.statusText);
       }
     } catch (error) {
-      console.error('Error:', error);
+      console.error("Error:", error);
     }
   };
 
@@ -62,8 +63,18 @@ export default function QueryGenerator() {
   };
 
   const handlePrev = () => {
-    setCurrentIndex((prevIndex) => (prevIndex - 1 + pdfLinks.length) % pdfLinks.length);
+    setCurrentIndex(
+      (prevIndex) => (prevIndex - 1 + pdfLinks.length) % pdfLinks.length
+    );
   };
+
+  const handleUploadDrawer=()=>{
+    setDrawerOpen(false)
+  }
+
+  function resetWindow() {
+    window.location.reload();
+  }
 
   return (
     <main>
@@ -90,19 +101,54 @@ export default function QueryGenerator() {
             </div>
           ))}
           <div className="getcvbuttondiv">
-            <button className="getcvbutton" type="submit">Get CV</button>
+            <button className="getcvbutton" type="submit">
+              Get CV
+            </button>
           </div>
         </form>
       ) : (
-        <div id="pdf-viewer" className="pdf-viewer">
-          <h2 className="pdfheading">PDF Content</h2>
-          <embed src={pdfLinks[currentIndex]} type="application/pdf" width="100%" height="600px" />
+        <div className={`drawer ${drawerOpen ? 'open' : ''}`} id="pdf-viewer">
+          <div className="pdfheading">
+            <h2 className="pdfheadingtext">CV PDF</h2>
+            <button className="reset-button" onClick={resetWindow}>
+              &times;
+            </button>
+          </div>
+          <div className="embed-container">
+            <embed
+              src={pdfLinks[currentIndex]}
+              type="application/pdf"
+              width="100%"
+              height="800px"
+            />
+          </div>
           <div className="navigation-buttons">
-            <button className="getcvbutton" onClick={handlePrev} disabled={pdfLinks.length <= 1}>Previous</button>
-            <button className="getcvbutton" onClick={handleNext} disabled={pdfLinks.length <= 1}>Next</button>
+            <button
+              className="getcvbutton"
+              onClick={handlePrev}
+              disabled={pdfLinks.length <= 1}
+            >
+              Previous
+            </button>
+            <button
+              className="getcvbutton"
+              onClick={handleNext}
+              disabled={pdfLinks.length <= 1}
+            >
+              Next
+            </button>
           </div>
         </div>
       )}
+
+      <div className={`upload-drawer ${uploadDrawerOpen ? 'open' : ''}`}>
+        <button className="close-button" onClick={resetWindow}>
+          &times;
+        </button>
+        <h2>Upload CV</h2>
+        <input type="file" accept=".pdf" />
+        <button className="upload-button">Upload</button>
+      </div>
     </main>
   );
 }
