@@ -35,7 +35,7 @@ def extract_sections(text):
     return sections
 
 # Extract text from the CV
-pdf_path = "testcv4.pdf"  # Replace with the path to your PDF file
+pdf_path = "testcv5.pdf"  # Replace with the path to your PDF file
 text = extract_text_from_pdf(pdf_path)
 
 # Extract sections from the CV text

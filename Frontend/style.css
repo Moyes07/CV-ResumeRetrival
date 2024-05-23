@@ -5,7 +5,7 @@
 body {
     font-family: "Karla", sans-serif;
     margin: 0;
-    background-image: url('/images/nlpbg1.jpeg');
+    background-image: url('/images/nlpbg4.jpg');
     background-repeat: no-repeat;
     background-size: cover;
 }
@@ -17,7 +17,7 @@ main{
     display: flex;
     align-items: center;
     height: 65px;
-    background: linear-gradient(90deg, #672280 1.18%, #A626D3 100%);
+    background: linear-gradient(90deg, rgba(103, 34, 128, 0.8) 1.18%, rgba(166, 38, 211, 0.8) 100%);
     color: white;
     padding: 20px;
 }
@@ -153,14 +153,15 @@ main {
     padding: 5px;
     font-size: 16px;
     width:200px ;
+    border-radius: 12px;
   }
   
   .textbox {
     padding: 5px;
     font-size: 16px;
     width:400px;
-    border-style: solid;
-    border-radius: 5px;
+    border-style:groove;
+    border-radius: 12px;
   }
   .getcvbuttondiv {
     margin-top: 20px;
